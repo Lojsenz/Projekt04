@@ -1,0 +1,27 @@
+<form action="/food/<%=category.name%>/new" method="POST">
+  <div>
+    <label for="food_name">name</label>
+    <input
+      type="text"
+      name="name"
+      id="food_name"
+      required
+      minlength="1"
+      maxlength="500"
+    />
+  </div>
+  <div>
+    <label for="food_recipe">recipe</label>
+    <input
+      type="text"
+      name="recipe"
+      id="food_recipe"
+      required
+      minlength="1"
+      maxlength="500"
+    />
+  </div>
+  <div>
+    <button>Dodaj</button>
+  </div>
+</form>
