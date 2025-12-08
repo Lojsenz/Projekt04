@@ -63,11 +63,11 @@ export function addRecipe(categoryId, recipe) {
 
 export function deleteCategory(categoryId) {
   try {
-    // Delete all recipes in this category first
+    
     const deleteRecipesStmt = db.prepare("DELETE FROM recipes WHERE category_id = ?");
     deleteRecipesStmt.run(categoryId);
     
-    // Delete the category
+    
     const deleteCategoryStmt = db.prepare("DELETE FROM categories WHERE id = ?");
     const result = deleteCategoryStmt.run(categoryId);
     
