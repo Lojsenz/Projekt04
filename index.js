@@ -1,5 +1,5 @@
 import express from "express";
-import { getCategorySummaries, hasCategory, getCategory, addRecipe, addCategory } from "./models/recipes.js";
+import { getCategorySummaries, hasCategory, getCategory, addRecipe, addCategory, deleteCategory, deleteRecipe } from "./models/database.js";
 
 const port = 8000;
 
@@ -66,6 +66,27 @@ app.post("/food/:category_id/new", (req, res) => {
       recipe: req.body.recipe,
     });
     res.redirect(`/food/${category_id}`);
+  }
+});
+
+app.post("/food/:category_id/delete", (req, res) => {
+  const category_id = req.params.category_id;
+  if (hasCategory(category_id)) {
+    deleteCategory(category_id);
+    res.redirect("/food/categories/");
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+app.post("/food/:category_id/recipe/:recipe_id/delete", (req, res) => {
+  const category_id = req.params.category_id;
+  const recipe_id = req.params.recipe_id;
+  if (hasCategory(category_id)) {
+    deleteRecipe(recipe_id);
+    res.redirect(`/food/${category_id}`);
+  } else {
+    res.sendStatus(404);
   }
 });
 

@@ -57,6 +57,39 @@ h1 {
 	font-weight: 600;
 }
 
+#recipes {
+	list-style: none;
+	padding: 0;
+	margin: 8px auto 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#recipes li {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 80%;
+	margin: 8px 0;
+	padding: 10px;
+	border-radius: 6px;
+	border: 1px solid #e6e6e6;
+}
+
+#recipes li form {
+	margin-left: auto;
+	flex-shrink: 0;
+}
+
+#recipes ~ div {
+	width: 80%;
+	margin: 20px auto;
+	padding: 10px;
+	border-radius: 6px;
+	border: 1px solid #e6e6e6;
+}
+
 form label {
 	display: block;
 	margin: 10px 0 6px;
@@ -66,9 +99,11 @@ form label {
 input[type=text],
 textarea {
 	width: 100%;
+	max-width: 100%;
 	padding: 8px;
 	border: 1px solid #e6e6e6;
 	border-radius: 6px;
+	box-sizing: border-box;
 }
 
 button,
