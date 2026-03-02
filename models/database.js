@@ -11,43 +11,59 @@ db.serialize(() => {
       username TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
       is_admin INTEGER DEFAULT 0
-    );
-    
+    )
+  `, (err) => {
+    if (err) console.log("Error creating users table:", err.message);
+  });
+  
+  db.run(`
     CREATE TABLE IF NOT EXISTS categories (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       user_id INTEGER NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users(id),
       UNIQUE(name, user_id)
-    );
-    
+    )
+  `, (err) => {
+    if (err) console.log("Error creating categories table:", err.message);
+  });
+  
+  db.run(`
     CREATE TABLE IF NOT EXISTS recipes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       category_id TEXT NOT NULL,
       name TEXT NOT NULL,
       recipe TEXT,
       FOREIGN KEY (category_id) REFERENCES categories(id)
-    );
-  `);
-  
-  // Create admin user if it doesn't exist
-  db.get("SELECT * FROM users WHERE username = ?", ["admin"], async (err, user) => {
-    if (!user) {
-      const hashedPassword = await bcrypt.hash("admin", 10);
-      db.run(
-        "INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)",
-        ["admin", hashedPassword, 1],
-        function(err) {
-          if (err) {
-            console.log("Error creating admin user:", err.message);
-          } else {
-            console.log("Admin user created successfully");
-          }
-        }
-      );
-    }
+    )
+  `, (err) => {
+    if (err) console.log("Error creating recipes table:", err.message);
   });
 });
+
+// Create admin user if it doesn't exist (after tables are created)
+setTimeout(async () => {
+  db.get("SELECT * FROM users WHERE username = ?", ["admin"], async (err, user) => {
+    if (!user && !err) {
+      try {
+        const hashedPassword = await bcrypt.hash("admin", 10);
+        db.run(
+          "INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)",
+          ["admin", hashedPassword, 1],
+          function(err) {
+            if (err) {
+              console.log("Error creating admin user:", err.message);
+            } else {
+              console.log("Admin user created successfully (username: admin, password: admin)");
+            }
+          }
+        );
+      } catch (err) {
+        console.log("Error hashing admin password:", err.message);
+      }
+    }
+  });
+}, 500);
 
 export function addCategory(id, name, userId) {
   return new Promise((resolve) => {
@@ -88,7 +104,16 @@ export function getCategory(id) {
 
 export function getCategorySummaries(userId) {
   return new Promise((resolve) => {
-    db.all("SELECT id, name FROM categories WHERE user_id = ?", [userId], (err, rows) => {
+    let query = "SELECT id, name FROM categories";
+    let params = [];
+    
+    // If userId is provided, only get that user's categories
+    if (userId !== null) {
+      query += " WHERE user_id = ?";
+      params = [userId];
+    }
+    
+    db.all(query, params, (err, rows) => {
       resolve(rows || []);
     });
   });

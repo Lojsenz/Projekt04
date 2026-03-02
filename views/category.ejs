@@ -1,21 +1,49 @@
-<%- include("head.partial.ejs") %>
-<main>
-  <h1><%= title %></h1>
-  <a href="/food/categories/">← Back to Categories</a>
-  <ul id="recipes">
-    <% category.recipes.forEach(function(recipes){ %>
-      <% console.log(recipes); %>
-    <li>
-      <%= recipes.name %> - <%= recipes.recipe %>
-      <form method="POST" action="/food/<%= category.id %>/recipe/<%= recipes.id %>/delete" style="display:inline;">
-        <button type="submit" onclick="return confirm('Are you sure you want to delete this recipe?')">Delete</button>
-      </form>
-    </li>
-    <% }) %>
-  </ul>
-   <div>
-    <h3>New Recipe</h3>
-    <%- include("forms/add_recipe.ejs") %>
-  </div>
-</main>
-<%- include("foot.partial.ejs") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/food/categories/" class="back-link">← Back to Categories</a>
+        
+        <div class="header">
+            <h1><%= title %></h1>
+            <form method="post" action="/food/<%= category.id %>/delete" style="margin: 0;">
+                <button type="submit" class="delete-btn" onclick="return confirm('Delete this category?')">Delete Category</button>
+            </form>
+        </div>
+
+        <h2>Recipes</h2>
+        <% if (category.recipes && category.recipes.length > 0) { %>
+            <% category.recipes.forEach(recipe => { %>
+                <div class="recipe-item">
+                    <div class="recipe-name"><%= recipe.name %></div>
+                    <div class="recipe-text"><%= recipe.recipe %></div>
+                    <form method="post" action="/food/<%= category.id %>/recipe/<%= recipe.id %>/delete" style="display: inline;">
+                        <button type="submit" class="recipe-delete-btn" onclick="return confirm('Delete this recipe?')">Delete</button>
+                    </form>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No recipes in this category yet.</p>
+        <% } %>
+
+        <h2>Add New Recipe</h2>
+        <form method="post" action="/food/<%= category.id %>/new">
+            <div class="form-group">
+                <label for="name">Recipe Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="recipe">Recipe Instructions</label>
+                <textarea id="recipe" name="recipe" required style="min-height: 150px;"></textarea>
+            </div>
+            <button type="submit">Add Recipe</button>
+        </form>
+    </div>
+</body>
+</html>

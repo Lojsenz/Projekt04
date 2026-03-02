@@ -13,13 +13,13 @@ app.use(express.urlencoded());
 
 // Session middleware
 app.use(session({
-  secret: "your-secret-key-change-this-in-production",
+  secret: "randklucz",
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
 }));
 
-// Middleware to check if user is authenticated
+
 const isAuthenticated = (req, res, next) => {
   if (req.session.userId) {
     next();
@@ -91,8 +91,23 @@ app.get("/logout", (req, res) => {
   });
 });
 
+app.get("/:food", (req, res) => {
+  if (req.session.userId) {
+    res.redirect("/food/categories/");
+  } else {
+    res.redirect("/login");
+  }
+});
+
 app.get("/food/categories/", isAuthenticated, async (req, res) => {
-  const summaries = await getCategorySummaries(req.session.userId);
+  let summaries;
+  if (req.session.is_admin) {
+    // Admin sees all categories from all users
+    summaries = await getCategorySummaries(null);
+  } else {
+    // Regular users only see their own categories
+    summaries = await getCategorySummaries(req.session.userId);
+  }
   res.render("categories", {
     title: "Categories",
     categories: summaries.map((c) => c.name),
@@ -114,8 +129,10 @@ app.post("/food/new_category", isAuthenticated, async (req, res) => {
     return;
   }
 
+  
+
   const id = name; 
-  const created = await addCategory(id, name);
+  const created = await addCategory(id, name, req.session.userId);
   if (!created) {
     
     res.render("forms/new_category", { title: "New Category", name: req.body.name });
